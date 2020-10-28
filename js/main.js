@@ -23,6 +23,13 @@ let login = localStorage.getItem('gloDelivery');
 
 function toogleModalAuth() {
   modalAuth.classList.toggle('is-open');
+  loginInput.style.borderColor = '';
+
+  if (modalAuth.classList.contains('is-open')) {
+    disabledScroll();
+  } else {
+    enableScroll();
+  }
 }
 
 function autorized() {
@@ -53,23 +60,42 @@ function autorized() {
 function notAutorized() {
 
   function logIn(event) {
+
     event.preventDefault();
-    login = loginInput.value;
 
-    localStorage.setItem('gloDelivery', login);
+    // Проверка на введенные логина
+    event.preventDefault();
+    if (loginInput.value.trim()) {
 
-    toogleModalAuth();
+      login = loginInput.value;
+  
+      localStorage.setItem('gloDelivery', login);
+  
+      toogleModalAuth();
+  
+      buttonAuth.removeEventListener('click', toogleModalAuth);
+      closeAuth.removeEventListener('click', toogleModalAuth);
+      logInForm.removeEventListener('submit', logIn);
+      logInForm.reset();
+      checkAuth();
 
-    buttonAuth.removeEventListener('click', toogleModalAuth);
-    closeAuth.removeEventListener('click', toogleModalAuth);
-    logInForm.removeEventListener('submit', logIn);
-    logInForm.reset();
-    checkAuth();
+    } else {
+      // alert('Your login')
+      loginInput.style.borderColor = '#ff0000';
+      loginInput.value = '';
+    }
+
   };
 
   buttonAuth.addEventListener('click', toogleModalAuth);
   closeAuth.addEventListener('click', toogleModalAuth);
   logInForm.addEventListener('submit', logIn);
+  modalAuth.addEventListener('click', function (event) {
+    console.log(event.target);
+    if (event.target.classList.contains('is-open')) {
+      toogleModalAuth();
+    }
+  })
 };
 
 function checkAuth() {
