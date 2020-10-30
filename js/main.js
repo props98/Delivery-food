@@ -32,6 +32,10 @@ const inputSearch = document.querySelector('.input-search');
 
 let login = localStorage.getItem('gloDelivery');
 
+// Day #4
+
+const cart = [];
+
 // Day#3
 
 const getData = async function(url) {
@@ -39,20 +43,18 @@ const getData = async function(url) {
   const response = await fetch(url);
   
   if(!response.ok) {
-    throw new Error(`Ошибка по адресу ${url}, статус ошибки ${response.status}`)
+    throw new Error(`Ошибка по адресу ${url}, статус ошибки ${response.status}`);
   }
 
   return await response.json();
 
-}
+};
 
 
 function validName(str) {
   const regName = /^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$/;
   return regName.test(str);
 }
-
-console.log(validName('000099xmaxxxx'));
 
 function toggleModal() {
   modal.classList.toggle("is-open");
@@ -80,17 +82,20 @@ function autorized() {
     buttonAuth.style.display = '';
     userName.style.display = '';
     buttonOut.style.display = '';
+    cartButton.style.display = '';
     buttonOut.removeEventListener('click', logOut);
 
     checkAuth();
-  };
+  }
 
   userName.textContent = login;
 
   buttonAuth.style.display = 'none';
   userName.style.display = 'inline';
-  buttonOut.style.display = 'block';
+  buttonOut.style.display = 'flex';
   
+  cartButton.style.display = 'flex';
+
   buttonOut.addEventListener('click', logOut);
 }
 
@@ -180,19 +185,13 @@ function createCardRestaurant({
 
 }
 
-function createCardGood({
-  image,
-  description,
-  id,
-  name,
-  price
-}) {
+function createCardGood({ image, description, name, price, id}) {
 
   const card = document.createElement('div');
   card.className = 'card';
 
   card.insertAdjacentHTML('beforeend', `
-    <img src=${image} alt=${name} class="card-image"/>
+    <img src=${image} alt="image" class="card-image"/>
     <div class="card-text">
       <div class="card-heading">
         <h3 class="card-title card-title-reg">${name}</h3>
@@ -201,11 +200,11 @@ function createCardGood({
         <div class="ingredients">${description}</div>
       </div>
       <div class="card-buttons">
-        <button class="button button-primary button-add-cart">
+        <button class="button button-primary button-add-cart id="${id}">
           <span class="button-card-text">В корзину</span>
           <span class="button-cart-svg"></span>
         </button>
-        <strong class="card-price-bold">От ${price} ₽</strong>
+        <strong class="card-price card-price-bold">От ${price} ₽</strong>
       </div>
     </div>
   `);
@@ -239,23 +238,48 @@ function openGoods(event) {
         data.forEach(createCardGood);
       });
 
-    };
+    }
   } else {
     toogleModalAuth();
   }
 
 }
 
+function addToCart(event) {
+  
+  const target = event.target;
+
+  const buttonAddToCart = target.closest('.button-add-cart');
+
+  if (buttonAddToCart) {
+    const card = target.closest('.card');
+    const title = card.querySelector('.card-title-reg').textContent;
+    const cost = card.querySelector('.card-price').textContent;
+    const id = buttonAddToCart.id;
+    cart.push({
+      id: id,
+      title: title,
+      cost: cost
+    });
+
+    console.log(cart);
+  }
+}
+
 function init() {
 
   getData('./db/partners.json').then(function (data) {
-    data.forEach(createCardRestaurant)
+    data.forEach(createCardRestaurant);
   });
 
   cartButton.addEventListener("click", toggleModal);
+  
+  cardsMenu.addEventListener('click', addToCart);
+
   close.addEventListener("click", toggleModal);
 
   cardsRestaurants.addEventListener('click', openGoods);
+
   logo.addEventListener('click', function () {
 
     containerPromo.classList.remove('hide');
@@ -278,11 +302,9 @@ function init() {
         event.target.value = '';
         setTimeout(function() {
           event.target.style.backgroundColor = '';
-        }, 1500)
+        }, 1500);
         return;
       }
-
-      console.log(value);
 
       getData('./db/partners.json')
       .then(function (data) {
@@ -312,9 +334,9 @@ function init() {
               restaurantPrice.textContent = '';
               restaurantCategory.textContent = 'разное';
               resultSearch.forEach(createCardGood);
-            })
-        })
-      })
+            });
+        });
+      });
     }
   });
 
